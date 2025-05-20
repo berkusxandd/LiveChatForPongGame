@@ -38,6 +38,7 @@ function buildServer() {
             });
             socket.on('chat message', (msg) => {
                 console.log('message: ' + msg);
+                io.emit('chat message', msg);
             });
         });
         yield fastify.listen({
