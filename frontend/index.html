@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>Socket.IO chat</title>
+    <title>Live Chat For Pong</title>
     <style>
       body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
 
@@ -16,32 +16,53 @@
       #messages > li:nth-child(odd) { background: #efefef; }
     </style>
   </head>
-<script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const socket = io();
-    const form = document.getElementById('form');
-    const input = document.getElementById('input');
-    const messages = document.getElementById('messages');
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      if (input.value) {
-        socket.emit('chat message', input.value);
-        input.value = '';
-      }
-    });
-    socket.on('chat message', (msg) => {
-    const item = document.createElement('li');
-    item.textContent = msg;
-    messages.appendChild(item);
-    window.scrollTo(0, document.body.scrollHeight);
-  });
-  });
-</script>
   <body>
     <ul id="messages"></ul>
     <form id="form" action="">
-      <input id="input" autocomplete="off" /><button>Send</button>
+      <input id="input" autocomplete="off" placeholder="Type your message..." /><button>Send</button>
     </form>
+
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const username = prompt("Enter your username:");
+        const recipient = prompt("Who do you want to chat with?");
+        if (!username) {
+          alert("Username is required!");
+          return;
+        }
+        const socket = io("http://localhost:3000", {
+          auth: { userId: username }
+        });
+
+        const form = document.getElementById("form");
+        const input = document.getElementById("input");
+        const messages = document.getElementById("messages");
+
+        form.addEventListener("submit", (e) => {
+          e.preventDefault();
+          if (input.value) {
+            socket.emit("chat message", {
+              from: username,
+              to: recipient,
+              msg: input.value
+            });
+            const item = document.createElement("li");
+            item.textContent = `You: ${input.value}`;
+            messages.appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
+            input.value = "";
+          }
+        });
+
+        socket.on("chat message", ({ from, msg }) => {
+          if (from === username || from != recipient) return;
+          const item = document.createElement("li");
+          item.textContent = `${from}: ${msg}`;
+          messages.appendChild(item);
+          window.scrollTo(0, document.body.scrollHeight);
+        });
+      });
+    </script>
   </body>
 </html>

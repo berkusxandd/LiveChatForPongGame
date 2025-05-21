@@ -13,33 +13,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const fastify_1 = __importDefault(require("fastify"));
-const static_1 = __importDefault(require("@fastify/static"));
-const path_1 = __importDefault(require("path"));
-const socket_io_1 = require("socket.io");
 function buildServer() {
     return __awaiter(this, void 0, void 0, function* () {
         const fastify = (0, fastify_1.default)({ logger: true });
-        fastify.register(static_1.default, {
-            root: path_1.default.join(__dirname, '../frontend'),
-            prefix: '/'
-        });
         fastify.get("/", (req, res) => {
             return ({ message: "hello" });
-        });
-        fastify.get("/chat", (req, reply) => {
-            reply.type('text/html').sendFile('index.html');
-        });
-        yield fastify.ready();
-        const io = new socket_io_1.Server(fastify.server);
-        io.on('connection', (socket) => {
-            console.log('a user connected');
-            socket.on('disconnect', () => {
-                console.log('a user disconnected');
-            });
-            socket.on('chat message', (msg) => {
-                console.log('message: ' + msg);
-                io.emit('chat message', msg);
-            });
         });
         yield fastify.listen({
             port: 3000,
