@@ -39,10 +39,25 @@
         const input = document.getElementById("input");
         const messages = document.getElementById("messages");
 
+        //For the mesage history
+        fetch(`http://localhost:3000/messages/${username}/${recipient}`)
+        .then(res => res.json())
+        .then(data => {
+        data.forEach((msg) => {
+        const item = document.createElement("li");
+        item.textContent = msg.sender_id === username 
+        ? `You: ${msg.message}` 
+        : `${msg.sender_id}: ${msg.message}`;
+        messages.appendChild(item);
+        });
+          window.scrollTo(0, document.body.scrollHeight);
+        });
+
+
         form.addEventListener("submit", (e) => {
           e.preventDefault();
           if (input.value) {
-            socket.emit("chat message", {
+            socket.emit("emit-chat-message", {
               from: username,
               to: recipient,
               msg: input.value
@@ -55,7 +70,7 @@
           }
         });
 
-        socket.on("chat message", ({ from, msg }) => {
+        socket.on("get-chat-message", ({ from, msg }) => {
           if (from === username || from != recipient) return;
           const item = document.createElement("li");
           item.textContent = `${from}: ${msg}`;
