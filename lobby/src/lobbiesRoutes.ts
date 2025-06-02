@@ -1,12 +1,16 @@
-import { FastifyInstance } from "fastify";
+import { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { FastifyPluginAsync } from "fastify";
-import { db } from "./database";
 import { createLobby, getLobbies, joinLobby } from "./lobbyService";
+import { joinLobbySchema, JoinLobbyBody } from './schemas/joinLobby.schemas'
+import { CreateLobbyBody, createLobbySchema } from "./schemas/createLobby.schemas";
 const lobbiesRoutes: FastifyPluginAsync = async (fastify: FastifyInstance) =>
 {
 
 //to create lobbies, requries lobby name, capacity, user (admin)
-fastify.post('/create-lobby', async (request, reply) => {
+fastify.post('/create-lobby', {
+    schema: createLobbySchema,
+  },
+  async (request: FastifyRequest<{ Body: CreateLobbyBody }>, reply: FastifyReply) => {
     const { name, capacity, creator_id } = request.body as { name: string; capacity: number; creator_id: number };
     try {
       await createLobby(name,capacity,creator_id)
@@ -16,7 +20,11 @@ fastify.post('/create-lobby', async (request, reply) => {
     }
   })
 
-  fastify.post('/join-lobby', async (request, reply) => 
+
+fastify.post('/join-lobby',  {
+    schema: joinLobbySchema,
+  },
+  async (request: FastifyRequest<{ Body: JoinLobbyBody }>, reply: FastifyReply) => 
   {
     const { lobbyId, userId } = request.body as { lobbyId: number; userId: number;}
     try {

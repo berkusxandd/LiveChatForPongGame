@@ -1,23 +1,12 @@
-import sqlite3  from "sqlite3";
 
-export const db = new sqlite3.Database('./tournament.db');
+import { Sequelize } from "sequelize";
+import { defineLobbyModel } from "./models/lobby.models";
+import { defineUserLobbyModel } from "./models/user_lobbies.models";
 
-export function initDb() {
-  db.serialize(() => {
-    db.run(`
-      CREATE TABLE IF NOT EXISTS lobbies (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        capacity INTEGER NOT NULL,
-        creator_id INTEGER
-      )
-    `);
-    db.run(`
-      CREATE TABLE IF NOT EXISTS user_lobbies (
-        user_id INTEGER PRIMARY KEY,
-        lobby_id INTEGER,
-        FOREIGN KEY (lobby_id) REFERENCES lobbies(id)
-      )
-    `);
-  });
+export function initDb(sequelize: Sequelize) {
+
+  const LobbyModel = defineLobbyModel(sequelize)
+  const UserLobbyModel = defineUserLobbyModel(sequelize)
+
+  return { LobbyModel, UserLobbyModel };
 }
