@@ -12,29 +12,25 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const fastify_1 = __importDefault(require("fastify"));
-const lobbiesRoutes_1 = __importDefault(require("./lobbiesRoutes"));
-const sequelize_init_1 = require("./sequelize_init");
-function buildServer() {
+exports.addUsers = addUsers;
+const database_1 = __importDefault(require("./database"));
+const insertUser = (index) => __awaiter(void 0, void 0, void 0, function* () {
+    const email = `user${index}@example.com`;
+    const username = `user${index}`;
+    const passwordHash = 'aaaxxxbbb';
+    yield database_1.default.run(`INSERT INTO users (email, username, password_hash) VALUES (?, ?, ?)`, [email, username, passwordHash]);
+});
+function addUsers() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            yield sequelize_init_1.sequelize.authenticate();
-            console.log('Connection has been established successfully.');
+            for (let index = 0; index < 10; index++) {
+                yield insertUser(index);
+                console.log(`inserted user: ${index}`);
+            }
+            console.log(`all users inserted.`);
         }
         catch (error) {
-            console.error('Unable to connect to the database:', error);
-            process.exit(1);
+            console.log(error);
         }
-        const fastify = (0, fastify_1.default)({ logger: true });
-        fastify.register(lobbiesRoutes_1.default);
-        yield sequelize_init_1.sequelize.sync({ alter: true });
-        fastify.get("/", (req, res) => {
-            res.send({ message: "hello from tournament api!" });
-        });
-        yield fastify.listen({
-            port: 3001,
-            host: "0.0.0.0"
-        });
     });
 }
-buildServer();

@@ -1,16 +1,16 @@
-
-import { LobbyModel, UserLobbyModel } from "./models/init_models";
+import Lobby from "./models/lobby.models";
+import UserLobby from "./models/user_lobbies.models";
 
 export async function getLobbies(lobby_id: number): Promise<any> 
 {
      try {
-    const lobby = await LobbyModel.findByPk(lobby_id);
+    const lobby = await Lobby.findByPk(lobby_id);
 
     if (!lobby) {
       throw { statusCode: 404, message: "Lobby is not found" };
     }
 
-    const usersInLobby = await UserLobbyModel.findAll({
+    const usersInLobby = await UserLobby.findAll({
       where: { lobby_id }
     });
 
@@ -22,13 +22,12 @@ export async function getLobbies(lobby_id: number): Promise<any>
 
 export async function createLobby(name: string, capacity: number, creator_id: number): Promise<void> {
   try {
-    const lobby = await LobbyModel.create({
+    const lobby = await Lobby.create({
       name,
       capacity,
       creator_id,
     });
-
-    await UserLobbyModel.create({
+    await UserLobby.create({
       user_id: creator_id,
       lobby_id: lobby.id,
     });
@@ -40,13 +39,13 @@ export async function createLobby(name: string, capacity: number, creator_id: nu
 export async function joinLobby(userId: number, lobbyId: number): Promise<void>
 {
   try {
-    const existing = await UserLobbyModel.findOne({ where: { user_id: userId } });
+    const existing = await UserLobby.findOne({ where: { user_id: userId } });
 
     if (existing) {
       throw { statusCode: 400, message: "User is already in another lobby" };
     }
 
-    await UserLobbyModel.create({
+    await UserLobby.create({
       user_id: userId,
       lobby_id: lobbyId,
     });

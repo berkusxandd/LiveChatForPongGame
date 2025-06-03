@@ -1,10 +1,10 @@
 import { Server } from "socket.io"
-import db from "./database"
 import { FastifyInstance } from "fastify"
+import Message from "./models/messages.models"
 
 const onlineUserSockets = new Map<string, string>
 
-export function initSockets(fastify: FastifyInstance)
+export async function initSockets(fastify: FastifyInstance)
 {
     const io = new Server(fastify.server)
     io.on('connection', (socket) => {
@@ -17,7 +17,7 @@ export function initSockets(fastify: FastifyInstance)
             console.log(userId + ' (' + onlineUserSockets.get(userId) + ') ' + 'disconnected');
             onlineUserSockets.delete(userId)
         })
-        socket.on('emit-chat-message', ({ to, msg }) => {
+        socket.on('emit-chat-message', async ({ to, msg }) => {
             console.log(userId + " " + to + " " + msg);
             const targetSocket = onlineUserSockets.get(to)
             
@@ -29,17 +29,16 @@ export function initSockets(fastify: FastifyInstance)
                     });
                 }
                 //TO-DO database check if user exists
-                db.run(
-                `INSERT INTO messages (sender_id, receiver_id, message) VALUES (?, ?, ?)`,
-                [userId, to, msg],
-                (err) => {
-                if (err) {
-                console.error("Failed to insert message:", err);
-                } else {
+                try {
+                    await Message.create({
+                        sender_id: userId,
+                        receiver_id: to,
+                        message: msg
+                    });
                 console.log("Message stored in DB");
+                }   catch (err) {
+                console.error("Failed to insert message:", err);
                 }
-                }
-                );
         });
     });
 }

@@ -13,25 +13,32 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.registerRoutes = registerRoutes;
-const database_1 = __importDefault(require("./database"));
+const messages_models_1 = __importDefault(require("./models/messages.models"));
+const sequelize_1 = require("sequelize");
 function registerRoutes(fastify) {
     return __awaiter(this, void 0, void 0, function* () {
         fastify.get("/", (req, res) => {
             return ({ message: "hello" });
         });
-        fastify.get('/messages/:user1/:user2', (req, reply) => {
+        fastify.get('/messages/:user1/:user2', (req, reply) => __awaiter(this, void 0, void 0, function* () {
             const { user1, user2 } = req.params;
-            database_1.default.all(`SELECT * FROM messages 
-     WHERE (sender_id = ? AND receiver_id = ?) 
-        OR (sender_id = ? AND receiver_id = ?)
-     ORDER BY timestamp ASC`, [user1, user2, user2, user1], (err, rows) => {
-                if (err) {
-                    console.error(err);
-                    return reply.status(500).send({ error: 'Database error' });
-                }
-                reply.send(rows);
-            });
-        });
+            try {
+                const messages = yield messages_models_1.default.findAll({
+                    where: {
+                        [sequelize_1.Op.or]: [
+                            { sender_id: user1, receiver_id: user2 },
+                            { sender_id: user2, receiver_id: user1 },
+                        ],
+                    },
+                    order: [['timestamp', 'ASC']],
+                });
+                reply.send(messages);
+            }
+            catch (err) {
+                console.error(err);
+                reply.status(500).send({ error: 'Database error' });
+            }
+        }));
         fastify.get("/chat", (req, reply) => {
             reply.type('text/html').sendFile('index.html');
         });

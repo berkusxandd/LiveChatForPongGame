@@ -1,5 +1,4 @@
 import Fastify, { FastifyRequest } from "fastify"
-import { initDb } from "./database"
 import lobbiesRoutes from "./lobbiesRoutes";
 import { Sequelize } from "sequelize";
 import { sequelize } from "./sequelize_init";
@@ -18,7 +17,6 @@ async function buildServer() {
 
     const fastify = Fastify({logger: true})
     fastify.register(lobbiesRoutes)
-    initDb(sequelize);
     await sequelize.sync({ alter: true });
     fastify.get("/", (req,res) =>
     {
