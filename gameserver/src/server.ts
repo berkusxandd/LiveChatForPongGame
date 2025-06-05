@@ -2,9 +2,12 @@ import Fastify from 'fastify';
 import path from 'path';
 import fastifyStatic from '@fastify/static';
 import {Server} from "socket.io"
+import newPlayerJoined from './bince/roomService.js';
 
 const PORT = 3000;
-const rooms = new Map()
+
+export const rooms = new Map()
+
 async function buildServer() 
 {
   const fastify = Fastify({logger: true});
@@ -19,15 +22,20 @@ async function buildServer()
   fastify.get('/api/ping', async (req, reply) => {
   return { pong: true };
   });
+
   fastify.listen({ port: PORT }, (err, address) => {
 
     const io = new Server(fastify.server, {
       cors:{origin:"*"}
     })
 
+
     io.on("connection", (socket) => {
       console.log("New client connected")
+      newPlayerJoined(socket, io, "first")
     })
+
+
   
   if (err) {
     console.error(err);

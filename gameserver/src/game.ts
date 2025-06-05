@@ -61,9 +61,9 @@ function gameLoop() {
         match.setWinner();
     }
     if (!gameStates.isRunning) return;
-    updateGame();
     renderGame();
     requestAnimationFrame(gameLoop);
 }
-gameStart()
-gameLoop();
+
+await gameStart()
+gameLoop()

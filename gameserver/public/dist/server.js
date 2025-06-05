@@ -2,8 +2,9 @@ import Fastify from 'fastify';
 import path from 'path';
 import fastifyStatic from '@fastify/static';
 import { Server } from "socket.io";
+import newPlayerJoined from './bince/roomService.js';
 const PORT = 3000;
-const rooms = new Map();
+export const rooms = new Map();
 async function buildServer() {
     const fastify = Fastify({ logger: true });
     fastify.register(fastifyStatic, {
@@ -22,6 +23,7 @@ async function buildServer() {
         });
         io.on("connection", (socket) => {
             console.log("New client connected");
+            newPlayerJoined(socket, io, "first");
         });
         if (err) {
             console.error(err);

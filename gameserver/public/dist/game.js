@@ -1,5 +1,4 @@
 import { gameStates, keys, match } from "./state.js";
-import { updateGame } from "./update.js";
 import { renderGame, renderPauseMenu, renderEndMenu } from "./render.js";
 import { gameStart } from "./bince/gameStart.js";
 function togglePause() {
@@ -67,9 +66,8 @@ function gameLoop() {
     }
     if (!gameStates.isRunning)
         return;
-    updateGame();
     renderGame();
     requestAnimationFrame(gameLoop);
 }
-gameStart();
+await gameStart();
 gameLoop();

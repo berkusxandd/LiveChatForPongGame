@@ -1,7 +1,6 @@
 import { MAX_SPEED, SPEED_INC } from "./config.js";
 import { gameStates, keys, ball, leftPaddle, rightPaddle } from "./state.js";
 import { updateAI } from "./ia.js";
-
 function hitPaddle(ball, paddle) {
     return (ball.x - ball.radius < paddle.x + paddle.width &&
         ball.x + ball.radius > paddle.x &&
@@ -18,7 +17,10 @@ function onPaddleHit(ball, paddle) {
     ball.speed = Math.min(ball.speed * SPEED_INC, MAX_SPEED);
     ball.x += ball.dx * ball.radius;
 }
-export function updateGame() {
+function sendBallPosToPlayers(io) {
+    io.emit("ball-update", { x: ball.x, y: ball.y });
+}
+export function updateGame(io) {
     ball.move();
     if (gameStates.isSinglePlayer)
         updateAI();
@@ -34,4 +36,5 @@ export function updateGame() {
         onPaddleHit(ball, leftPaddle);
     if (hitPaddle(ball, rightPaddle))
         onPaddleHit(ball, rightPaddle);
+    sendBallPosToPlayers(io);
 }
