@@ -13,10 +13,12 @@ export default function newPlayerJoined(playerSocket : Socket, io: Server, roomN
 
     if (rooms.get(roomName)!.size == 2)
     {
+        let i = 0;
         for ( const socketID of rooms.get(roomName)!)
         {
-            io.to(socketID).emit("ready", {})
+            io.to(socketID).emit("ready", {player: i})
             gameLoop(io)
+            i++
         }
     }else
     {

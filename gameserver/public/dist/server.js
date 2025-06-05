@@ -3,6 +3,7 @@ import path from 'path';
 import fastifyStatic from '@fastify/static';
 import { Server } from "socket.io";
 import newPlayerJoined from './bince/roomService.js';
+import { keys, rightPaddle } from './bince/serversidegame/state.js';
 const PORT = 3000;
 export const rooms = new Map();
 async function buildServer() {
@@ -24,6 +25,10 @@ async function buildServer() {
         io.on("connection", (socket) => {
             console.log("New client connected");
             newPlayerJoined(socket, io, "first");
+            socket.on("key-w", (val) => {
+                keys.w = val;
+                socket.emit("paddle-position-0", rightPaddle.y);
+            });
         });
         if (err) {
             console.error(err);

@@ -9,7 +9,8 @@ export let gameStates = {
     isFirstUpdate: true,
     isRemote: false,
     isRunning: true,
-    isEnd: false
+    isEnd: false,
+    playerIndex: false //bince added this
 };
 export const match = new Match("player1", "player2");
 export let keys = {

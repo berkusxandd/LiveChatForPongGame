@@ -1,6 +1,7 @@
-import { gameStates, keys, match } from "./state.js";
+import { gameStates, match } from "./state.js";
 import { renderGame, renderPauseMenu, renderEndMenu } from "./render.js";
 import { gameStart } from "./bince/gameStart.js";
+import socket from "./socket.js";
 function togglePause() {
     gameStates.isRunning = !gameStates.isRunning;
     gameStates.isRunning ? requestAnimationFrame(gameLoop) : renderPauseMenu();
@@ -27,6 +28,7 @@ function quitGame() {
 //         });
 //     });
 // } else {
+//bince changed this
 window.addEventListener("keydown", (event) => {
     if (event.key === "Escape")
         quitGame();
@@ -35,29 +37,37 @@ window.addEventListener("keydown", (event) => {
     if (event.key === "r")
         restartGame();
     if (gameStates.isRunning) {
-        if (event.key === "w")
-            keys.w = true;
-        if (event.key === "s")
-            keys.s = true;
-        if (!gameStates.isSinglePlayer && event.key === "ArrowUp")
-            keys.Up = true;
-        if (!gameStates.isSinglePlayer && event.key === "ArrowDown")
-            keys.Down = true;
+        if (event.key === "w") {
+            socket.emit("key-w", true);
+        }
+        if (event.key === "s") {
+            socket.emit("key-s", true);
+        }
+        if (gameStates.playerIndex && event.key === "ArrowUp") {
+            socket.emit("key-up", true);
+        }
+        if (gameStates.playerIndex && event.key === "ArrowDown") {
+            socket.emit("key-down", true);
+        }
     }
 });
+//bince changed this
 window.addEventListener("keyup", (event) => {
     if (gameStates.isRunning) {
-        if (event.key === "w")
-            keys.w = false;
-        if (event.key === "s")
-            keys.s = false;
-        if (!gameStates.isSinglePlayer && event.key === "ArrowUp")
-            keys.Up = false;
-        if (!gameStates.isSinglePlayer && event.key === "ArrowDown")
-            keys.Down = false;
+        if (event.key === "w") {
+            socket.emit("key-w", false);
+        }
+        if (event.key === "s") {
+            socket.emit("key-s", false);
+        }
+        if (gameStates.playerIndex && event.key === "ArrowUp") {
+            socket.emit("key-up", false);
+        }
+        if (gameStates.playerIndex && event.key === "ArrowDown") {
+            socket.emit("key-down", false);
+        }
     }
 });
-//}
 function gameLoop() {
     if (gameStates.isEnd) {
         gameStates.isRunning = false;

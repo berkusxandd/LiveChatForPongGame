@@ -1,13 +1,10 @@
-import { ball } from "../state.js";
-
-declare const io: (url: string) => import("socket.io-client").Socket;
+import socket from "../socket.js";
+import { ball, gameStates, rightPaddle } from "../state.js";
 
 export const gameStart = async () =>
 {
     const status = document.getElementById("status")!;
     const canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
-
-    const socket = io("http://localhost:3000");
 
     socket.on("connect", () => {
         console.log("im client and i connected")
@@ -17,9 +14,17 @@ export const gameStart = async () =>
         ball.x = serverball.x
         ball.y = serverball.y
     })
-    await new Promise<void>((resolve) => {
 
-        socket.on("ready", () => {
+    socket.on("paddle-position-0", (pos) => {
+        rightPaddle.y = pos
+    })
+
+    await new Promise<void>((resolve) => {
+        socket.on("ready", (playerI) => {
+            if (playerI == 1)
+            {
+                gameStates.playerIndex = true
+            }
             setTimeout(() => {
             canvas.style.display = "block"
             status.style.display = "none"
