@@ -1,32 +1,39 @@
-// import express from "express";
-// import { gameStates, keys, scores, ball, leftPaddle, rightPaddle } from "./state.js";
+import Fastify from 'fastify';
+import path from 'path';
+import fastifyStatic from '@fastify/static';
+import {Server} from "socket.io"
 
-// const app = express();
-// const PORT = 3000;
+const PORT = 3000;
+const rooms = new Map()
+async function buildServer() 
+{
+  const fastify = Fastify({logger: true});
+  fastify.register(fastifyStatic, {
+  root: path.join(process.cwd(), 'public'),
+  prefix: '/',
+  });
 
-// app.use(express.json());
+  fastify.get('/', (_, reply) => {
+  reply.sendFile('index.html')
+  });
+  fastify.get('/api/ping', async (req, reply) => {
+  return { pong: true };
+  });
+  fastify.listen({ port: PORT }, (err, address) => {
 
-// app.get("/state", (req, res) => {
-//   res.json({ gameStates, keys, scores, ball, leftPaddle, rightPaddle });
-// });
+    const io = new Server(fastify.server, {
+      cors:{origin:"*"}
+    })
 
-// app.get("/update", (req, res) => {
-//     const {action, key, player} = req.body;
-
-//     if (player === "left" && key !== "w" && key !== "s")
-//         return;
-//     if (player === "right" && key !== "Up" && key !== "Down")
-//         return;
-
-//     if (action !== "keydown" && action !== "keyup")
-//         console.log("Error");
-
-//     action === "down" ? keys[key] = true : false;
-
-//     res.json({ message: "Key update" });
-// });
-
-
-// app.listen(PORT, () => {
-//   console.log(`Serveur lancé sur http://localhost:${PORT}`);
-// });
+    io.on("connection", (socket) => {
+      console.log("New client connected")
+    })
+  
+  if (err) {
+    console.error(err);
+    process.exit(1);
+  }
+  console.log(`Server running at ${address}`);
+  });  
+}
+buildServer()

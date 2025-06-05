@@ -7,7 +7,7 @@ export let canvas = document.getElementById("gameCanvas") as HTMLCanvasElement;
 export let ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 
 export let gameStates: { [key: string]: boolean } = {
-    isSinglePlayer: true,
+    isSinglePlayer: false,
     isFirstUpdate: true,
     isRemote: false,
     isRunning: true,
