@@ -42,7 +42,7 @@ export class Tournament {
     }
   }
 
-  getWinner(): string | null {
+  getWinner(): number | null {
     if (!this.isFinished) return null;
     return this.matches[2].winner || null;
   }

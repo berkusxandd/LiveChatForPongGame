@@ -1,10 +1,11 @@
 import { MAX_SPEED, SPEED_INC } from "./config.js";
 import { Ball } from "./ball.js";
 import { Paddle } from "./paddle.js";
-import { gameStates, keys, ball, leftPaddle, rightPaddle } from "./state.js";
+import { gameStates, keys, ball, leftPaddle, rightPaddle, match } from "./state.js";
 import { updateAI } from "./ia.js";
 import { Server } from "socket.io";
-import { rooms } from "../../server.js";
+import { rooms } from "../server.js";
+import { io } from "../initSocket.js";
 
 function hitPaddle(ball:Ball, paddle: Paddle): boolean {
     return (
@@ -27,12 +28,16 @@ function onPaddleHit(ball: Ball, paddle: Paddle): void {
     ball.x += ball.dx * ball.radius;
 }  
 
-function sendBallPosToPlayers(io: Server)
+function sendGameStateToClients()
 {
-    io.emit("ball-update", {x: ball.x,y: ball.y})
+    io.emit("game-update", {ball: {x: ball.x,y: ball.y}, rightPaddle: {x: rightPaddle.x, y: rightPaddle.y}, leftPaddle: {x: leftPaddle.x, y: leftPaddle.y}, "score_0": match.score[0], "score_1": match.score[1]})
 }
 
-export function updateGame(io: Server) {
+export function sendGameEndToClients()
+{
+    io.emit("game-end", {"winner": match.winner, "score-0": match.score[0], "score-1": match.score[1]})
+}
+export function updateGame() {
     ball.move();
     if (gameStates.isSinglePlayer) updateAI();
     if (keys.w) leftPaddle.moveUp();
@@ -41,5 +46,6 @@ export function updateGame(io: Server) {
     if (keys.Down) rightPaddle.moveDown();
     if (hitPaddle(ball, leftPaddle)) onPaddleHit(ball, leftPaddle);
     if (hitPaddle(ball, rightPaddle)) onPaddleHit(ball, rightPaddle);
-    sendBallPosToPlayers(io)
+    
+    sendGameStateToClients()
 }

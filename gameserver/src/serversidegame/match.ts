@@ -1,5 +1,5 @@
 export class Match {
-    winner?: string;
+    winner?: number;
     score: number[] = [0, 0];
     played: boolean = false;
 
@@ -9,7 +9,7 @@ export class Match {
     ) {}
 
     setWinner() {
-        this.winner = this.score[0] > this.score[1] ? this.player1 : this.player2;
+        this.winner = this.score[0] > this.score[1] ? 0 : 1;
         this.played = true;
         console.log(`DB player ${this.winner} win, score ${this.score}`);
     }

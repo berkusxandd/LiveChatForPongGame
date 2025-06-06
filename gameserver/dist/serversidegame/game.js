@@ -1,16 +1,12 @@
-import { Server } from "socket.io";
-import { ball, gameStates, keys, match } from "./state.js";
-import { updateGame } from "./update.js";
-
+import { gameStates, match } from "./state.js";
+import { sendGameEndToClients, updateGame } from "./update.js";
 // function togglePause() {
 //     gameStates.isRunning = !gameStates.isRunning;
 //     gameStates.isRunning ? requestAnimationFrame(gameLoop) : renderPauseMenu();
 // }
-
 // function restartGame() {
 //     window.location.reload();
 // }
-
 // function quitGame() {
 //     window.location.reload();
 //}
@@ -22,7 +18,6 @@ import { updateGame } from "./update.js";
 //             body: JSON.stringify({ action: "keydown", key: event, player:"left" })
 //         });
 //     });
-
 //     window.addEventListener("keyup", (event) => {
 //         fetch(`http://localhost:3000/update/`, {
 //             method: "POST",
@@ -42,7 +37,6 @@ import { updateGame } from "./update.js";
 //         if (!gameStates.isSinglePlayer && event.key === "ArrowDown") keys.Down = true;
 //     }
 // });
-
 // window.addEventListener("keyup", (event) => {
 //     if (gameStates.isRunning) {
 //         if (event.key === "w") keys.w = false;
@@ -51,18 +45,18 @@ import { updateGame } from "./update.js";
 //         if (!gameStates.isSinglePlayer && event.key === "ArrowDown") keys.Down = false;
 //     }
 // });
-
-
-export function gameLoop(io :Server) {
-    const tickRate = 60
-    const interval = 1000 / tickRate
+export function gameLoop() {
+    const tickRate = 60;
+    const interval = 1000 / tickRate;
     if (gameStates.isEnd) {
         gameStates.isRunning = false;
         //renderEndMenu();
         match.setWinner();
+        sendGameEndToClients();
     }
-    if (!gameStates.isRunning) return;
-    updateGame(io);
-    console.log("game is running : " + ball.x)
-    setTimeout(() => gameLoop(io), interval)
+    if (!gameStates.isRunning)
+        return;
+    updateGame();
+    //console.log("game is running : " + ball.x)
+    setTimeout(() => gameLoop(), interval);
 }

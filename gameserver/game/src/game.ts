@@ -1,7 +1,7 @@
 import { gameStates, keys, match } from "./state.js";
 import { updateGame } from "./update.js";
 import { renderGame, renderPauseMenu, renderEndMenu } from "./render.js";
-import { gameStart } from "./bince/gameStart.js";
+import { gameStart } from "./gameStart.js";
 import socket from "./socket.js";
 
 function togglePause() {
@@ -40,18 +40,11 @@ window.addEventListener("keydown", (event) => {
     if (!gameStates.isEnd && event.key === "p") togglePause();
     if (event.key === "r") restartGame();
     if (gameStates.isRunning) {
-               if (event.key === "w"){
-         socket.emit("key-w", true)   
-        }
-        if (event.key === "s"){
-         socket.emit("key-s", true)   
-        }
-        if (gameStates.playerIndex && event.key === "ArrowUp"){
+        if (event.key === "w"){
          socket.emit("key-up", true)   
         }
-        if (gameStates.playerIndex && event.key === "ArrowDown"){
+        if (event.key === "s"){
          socket.emit("key-down", true)   
-
         }
     }
 });
@@ -59,17 +52,10 @@ window.addEventListener("keydown", (event) => {
 window.addEventListener("keyup", (event) => {
     if (gameStates.isRunning) {
         if (event.key === "w"){
-         socket.emit("key-w", false)   
-        }
-        if (event.key === "s"){
-         socket.emit("key-s", false)   
-        }
-        if (gameStates.playerIndex && event.key === "ArrowUp"){
          socket.emit("key-up", false)   
         }
-        if (gameStates.playerIndex && event.key === "ArrowDown"){
+        if (event.key === "s"){
          socket.emit("key-down", false)   
-
         }
     }
 });
