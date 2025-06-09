@@ -1,6 +1,7 @@
 import { Server } from "socket.io"
 import { FastifyInstance } from "fastify"
 import Message from "./models/messages.models"
+import { isBlocked } from "./databaseService"
 
 const onlineUserSockets = new Map<string, string>
 
@@ -19,8 +20,9 @@ export async function initSockets(fastify: FastifyInstance)
         })
         socket.on('emit-chat-message', async ({ to, msg }) => {
             console.log(userId + " " + to + " " + msg);
+            const isBlock = await isBlocked(userId, to)
+            if (isBlock) return
             const targetSocket = onlineUserSockets.get(to)
-            
             if (targetSocket)
                 {
                     io.to(targetSocket).emit('get-chat-message', {

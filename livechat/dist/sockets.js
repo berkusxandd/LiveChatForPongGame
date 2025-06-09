@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.initSockets = initSockets;
 const socket_io_1 = require("socket.io");
 const messages_models_1 = __importDefault(require("./models/messages.models"));
+const databaseService_1 = require("./databaseService");
 const onlineUserSockets = new Map;
 function initSockets(fastify) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -30,6 +31,9 @@ function initSockets(fastify) {
             });
             socket.on('emit-chat-message', (_a) => __awaiter(this, [_a], void 0, function* ({ to, msg }) {
                 console.log(userId + " " + to + " " + msg);
+                const isBlock = yield (0, databaseService_1.isBlocked)(userId, to);
+                if (isBlock)
+                    return;
                 const targetSocket = onlineUserSockets.get(to);
                 if (targetSocket) {
                     io.to(targetSocket).emit('get-chat-message', {

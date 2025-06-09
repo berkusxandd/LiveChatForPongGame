@@ -15,6 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.registerRoutes = registerRoutes;
 const messages_models_1 = __importDefault(require("./models/messages.models"));
 const sequelize_1 = require("sequelize");
+const blockedUsers_models_1 = __importDefault(require("./models/blockedUsers.models"));
+const blockUser_schemas_1 = require("./schemas/blockUser.schemas");
 function registerRoutes(fastify) {
     return __awaiter(this, void 0, void 0, function* () {
         fastify.get("/", (req, res) => {
@@ -42,5 +44,28 @@ function registerRoutes(fastify) {
         fastify.get("/chat", (req, reply) => {
             reply.type('text/html').sendFile('index.html');
         });
+        fastify.post("/blockuser", { schema: blockUser_schemas_1.blockUserSchema }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
+            const { user1, user2 } = req.body;
+            try {
+                const blocked = yield blockedUsers_models_1.default.findOne({
+                    where: {
+                        [sequelize_1.Op.or]: [
+                            { blocked_id: user2, blocker_id: user1 },
+                        ],
+                    }
+                });
+                if (!blocked) {
+                    yield blockedUsers_models_1.default.create({
+                        blocked_id: user2,
+                        blocker_id: user1
+                    });
+                }
+                reply.send({ message: "User succesfully blocked" });
+            }
+            catch (err) {
+                console.error(err);
+                reply.status(500).send({ error: 'Database error while inserting block' });
+            }
+        }));
     });
 }
