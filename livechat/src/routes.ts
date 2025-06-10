@@ -11,7 +11,7 @@ export async function registerRoutes(fastify: FastifyInstance)
         return ({message: "hello"})
     })
 
-fastify.get('/messages/:user1/:user2',{schema: getMessagesSchema}, async (req: FastifyRequest<{Body: GetMessagesBody}>, reply: FastifyReply) => {
+fastify.get('/messages/:user1/:user2', async (req: FastifyRequest, reply: FastifyReply) => {
   const { user1, user2 } = req.params as { user1: string; user2: string };
 
   try {

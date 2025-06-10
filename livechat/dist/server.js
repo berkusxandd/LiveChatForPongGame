@@ -28,7 +28,7 @@ function buildServer() {
         try {
             sequelize_init_1.sequelize.authenticate();
             sequelize_init_1.sequelize.sync();
-            yield (0, routes_1.registerRoutes)(fastify);
+            yield fastify.register(routes_1.registerRoutes, { prefix: '/api/v1' });
             yield fastify.ready();
             (0, sockets_1.initSockets)(fastify);
             yield fastify.listen({

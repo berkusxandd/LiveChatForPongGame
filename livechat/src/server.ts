@@ -16,7 +16,7 @@ async function buildServer() {
     try {
         sequelize.authenticate()
         sequelize.sync()
-        await registerRoutes(fastify)
+        await fastify.register(registerRoutes, {prefix: '/api/v1'})
         await fastify.ready()
         initSockets(fastify)
         await fastify.listen({
