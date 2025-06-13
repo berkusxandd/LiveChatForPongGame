@@ -4,6 +4,8 @@ import { Op } from "sequelize";
 import BlockedUser from "./models/blockedUsers.models";
 import { BlockUserBody, blockUserSchema } from "./schemas/blockUser.schemas";
 import { GetMessagesBody, getMessagesSchema } from "./schemas/createMessage.schemas";
+import { getDbAsync, runDbAsync } from "./databaseServices";
+//import { authorize } from "./middleware/auth";
 
 export async function registerRoutes(fastify: FastifyInstance)
 {
@@ -36,24 +38,15 @@ fastify.get('/messages/:user1/:user2', async (req: FastifyRequest, reply: Fastif
     reply.type('text/html').sendFile('index.html')
     })
 
-    fastify.post("/blockuser",{schema: blockUserSchema}, async (req: FastifyRequest<{Body: BlockUserBody}>,reply: FastifyReply) => {
-      const { user1, user2 } = req.body as { user1: string; user2: string };
+    fastify.post("/blockuser",{schema: blockUserSchema}, async (req: FastifyRequest,reply: FastifyReply) => {
+      const { user, user2 } = req.body as { user: string, user2: string };
 
-  try {
-    const blocked = await BlockedUser.findOne({
-      where: {
-        [Op.or]: [
-          { blocked_id: user2, blocker_id: user1 },
-        ],
-      }
-    });
+    try {
+    const blocked = await getDbAsync(`SELECT * FROM blocked_users WHERE blocker_id = ? AND blocked_id = ?`, [user,user2]);
 
     if (!blocked)
     {
-        await BlockedUser.create({
-          blocked_id: user2,
-          blocker_id: user1
-      });
+        await runDbAsync(`INSERT INTO blocked_users (blocked_id, blocker_id) VALUES (?,?)`, [user,user2])
     }
 
     reply.send({message: "User succesfully blocked"})

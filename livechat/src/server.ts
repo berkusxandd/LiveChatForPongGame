@@ -4,6 +4,7 @@ import path from "path"
 import { registerRoutes } from "./routes"
 import { initSockets } from "./sockets"
 import { sequelize } from "./sequelize_init"
+import { db } from "./initDatabase"
 
 async function buildServer() {
     

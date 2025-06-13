@@ -15,8 +15,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.registerRoutes = registerRoutes;
 const messages_models_1 = __importDefault(require("./models/messages.models"));
 const sequelize_1 = require("sequelize");
-const blockedUsers_models_1 = __importDefault(require("./models/blockedUsers.models"));
 const blockUser_schemas_1 = require("./schemas/blockUser.schemas");
+const databaseServices_1 = require("./databaseServices");
+//import { authorize } from "./middleware/auth";
 function registerRoutes(fastify) {
     return __awaiter(this, void 0, void 0, function* () {
         fastify.get("/", (req, res) => {
@@ -45,20 +46,11 @@ function registerRoutes(fastify) {
             reply.type('text/html').sendFile('index.html');
         });
         fastify.post("/blockuser", { schema: blockUser_schemas_1.blockUserSchema }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
-            const { user1, user2 } = req.body;
+            const { user, user2 } = req.body;
             try {
-                const blocked = yield blockedUsers_models_1.default.findOne({
-                    where: {
-                        [sequelize_1.Op.or]: [
-                            { blocked_id: user2, blocker_id: user1 },
-                        ],
-                    }
-                });
+                const blocked = yield (0, databaseServices_1.getDbAsync)(`SELECT * FROM blocked_users WHERE blocker_id = ? AND blocked_id = ?`, [user, user2]);
                 if (!blocked) {
-                    yield blockedUsers_models_1.default.create({
-                        blocked_id: user2,
-                        blocker_id: user1
-                    });
+                    yield (0, databaseServices_1.runDbAsync)(`INSERT INTO blocked_users (blocked_id, blocker_id) VALUES (?,?)`, [user, user2]);
                 }
                 reply.send({ message: "User succesfully blocked" });
             }
