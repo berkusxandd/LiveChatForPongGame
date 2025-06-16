@@ -1,7 +1,9 @@
 import { Server } from "socket.io"
 import { FastifyInstance } from "fastify"
-import Message from "./models/messages.models"
-import { isBlocked } from "./databaseService"
+import { isBlocked } from "./services/databaseService"
+import { runDbAsync } from "./databaseServices"
+import { msgCmdCheck, sendMessageToSocket } from "./services/msgService"
+import { CommandResult } from "./interfaces/types"
 
 const onlineUserSockets = new Map<string, string>
 
@@ -20,27 +22,15 @@ export async function initSockets(fastify: FastifyInstance)
         })
         socket.on('emit-chat-message', async ({ to, msg }) => {
             console.log(userId + " " + to + " " + msg);
-            const isBlock = await isBlocked(userId, to)
-            if (isBlock) return
+            
             const targetSocket = onlineUserSockets.get(to)
-            if (targetSocket)
-                {
-                    io.to(targetSocket).emit('get-chat-message', {
-                        from: userId,
-                        msg: msg
-                    });
-                }
-                //TO-DO database check if user exists
-                try {
-                    await Message.create({
-                        sender_id: userId,
-                        receiver_id: to,
-                        message: msg
-                    });
-                console.log("Message stored in DB");
-                }   catch (err) {
-                console.error("Failed to insert message:", err);
-                }
+            
+            try {
+                await sendMessageToSocket(io,targetSocket,userId,to,msg)
+            } catch (error) {
+                console.log(error)
+            }
+
         });
     });
 }

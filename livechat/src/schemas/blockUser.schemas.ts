@@ -1,15 +1,15 @@
 export const blockUserSchema = {
   body: {
     type: 'object',
-    required: ['user1', 'user2'],
+    required: ['user', 'blocked_user'],
     properties: {
-      user1: { type: 'string' },
-      user2: { type: 'string' },
+      user: { type: 'string' },
+      blocked_user: { type: 'string' },
     },
   },
 };
 
 export interface BlockUserBody {
-    user1: string,
-    user2: string
+    user: string,
+    blocked_user: string
 }

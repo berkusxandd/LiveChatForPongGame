@@ -8,15 +8,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.registerRoutes = registerRoutes;
-const messages_models_1 = __importDefault(require("./models/messages.models"));
-const sequelize_1 = require("sequelize");
 const blockUser_schemas_1 = require("./schemas/blockUser.schemas");
 const databaseServices_1 = require("./databaseServices");
+const chatServices_1 = require("./services/chatServices");
 //import { authorize } from "./middleware/auth";
 function registerRoutes(fastify) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -26,15 +22,7 @@ function registerRoutes(fastify) {
         fastify.get('/messages/:user1/:user2', (req, reply) => __awaiter(this, void 0, void 0, function* () {
             const { user1, user2 } = req.params;
             try {
-                const messages = yield messages_models_1.default.findAll({
-                    where: {
-                        [sequelize_1.Op.or]: [
-                            { sender_id: user1, receiver_id: user2 },
-                            { sender_id: user2, receiver_id: user1 },
-                        ],
-                    },
-                    order: [['timestamp', 'ASC']],
-                });
+                const messages = yield (0, databaseServices_1.findAllDbAsync)(`SELECT * FROM messages WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? and receiver_id = ?)`, [user1, user2, user2, user1]);
                 reply.send(messages);
             }
             catch (err) {
@@ -46,17 +34,14 @@ function registerRoutes(fastify) {
             reply.type('text/html').sendFile('index.html');
         });
         fastify.post("/blockuser", { schema: blockUser_schemas_1.blockUserSchema }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
-            const { user, user2 } = req.body;
-            try {
-                const blocked = yield (0, databaseServices_1.getDbAsync)(`SELECT * FROM blocked_users WHERE blocker_id = ? AND blocked_id = ?`, [user, user2]);
-                if (!blocked) {
-                    yield (0, databaseServices_1.runDbAsync)(`INSERT INTO blocked_users (blocked_id, blocker_id) VALUES (?,?)`, [user, user2]);
-                }
-                reply.send({ message: "User succesfully blocked" });
+            const { user, blocked_user } = req.body;
+            const blocker_user = user;
+            const result = yield (0, chatServices_1.blockUser)(blocker_user, blocked_user);
+            if (result.error) {
+                reply.send({ message: result.error });
             }
-            catch (err) {
-                console.error(err);
-                reply.status(500).send({ error: 'Database error while inserting block' });
+            else {
+                reply.send({ message: result.replyMessage });
             }
         }));
     });

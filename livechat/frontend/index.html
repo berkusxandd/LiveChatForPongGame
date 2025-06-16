@@ -40,7 +40,7 @@
         const messages = document.getElementById("messages");
 
         //For the mesage history
-        fetch(`http://localhost:3000/messages/${username}/${recipient}`)
+        fetch(`http://localhost:3000/api/v1/messages/${username}/${recipient}`)
         .then(res => res.json())
         .then(data => {
         data.forEach((msg) => {

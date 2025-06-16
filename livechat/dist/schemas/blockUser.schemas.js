@@ -4,10 +4,10 @@ exports.blockUserSchema = void 0;
 exports.blockUserSchema = {
     body: {
         type: 'object',
-        required: ['user1', 'user2'],
+        required: ['user', 'blocked_user'],
         properties: {
-            user1: { type: 'string' },
-            user2: { type: 'string' },
+            user: { type: 'string' },
+            blocked_user: { type: 'string' },
         },
     },
 };

@@ -20,4 +20,16 @@ exports.db = new sqlite3_1.default.Database('../database/chat.sqlite.db', (err) 
         else
             console.log('blocked_user table created succesfully');
     });
+    exports.db.run(`CREATE TABLE IF NOT EXISTS messages (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  sender_id TEXT NOT NULL,
+  receiver_id TEXT NOT NULL,
+  message TEXT NOT NULL,
+  timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+);`, (err) => {
+        if (err)
+            console.log('Error creating blocked_user table');
+        else
+            console.log('messages table created succesfully');
+    });
 });

@@ -8,14 +8,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.initSockets = initSockets;
 const socket_io_1 = require("socket.io");
-const messages_models_1 = __importDefault(require("./models/messages.models"));
-const databaseService_1 = require("./databaseService");
+const msgService_1 = require("./services/msgService");
 const onlineUserSockets = new Map;
 function initSockets(fastify) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -31,27 +27,12 @@ function initSockets(fastify) {
             });
             socket.on('emit-chat-message', (_a) => __awaiter(this, [_a], void 0, function* ({ to, msg }) {
                 console.log(userId + " " + to + " " + msg);
-                const isBlock = yield (0, databaseService_1.isBlocked)(userId, to);
-                if (isBlock)
-                    return;
                 const targetSocket = onlineUserSockets.get(to);
-                if (targetSocket) {
-                    io.to(targetSocket).emit('get-chat-message', {
-                        from: userId,
-                        msg: msg
-                    });
-                }
-                //TO-DO database check if user exists
                 try {
-                    yield messages_models_1.default.create({
-                        sender_id: userId,
-                        receiver_id: to,
-                        message: msg
-                    });
-                    console.log("Message stored in DB");
+                    yield (0, msgService_1.sendMessageToSocket)(io, targetSocket, userId, to, msg);
                 }
-                catch (err) {
-                    console.error("Failed to insert message:", err);
+                catch (error) {
+                    console.log(error);
                 }
             }));
         });
