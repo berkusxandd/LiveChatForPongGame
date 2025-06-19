@@ -10,15 +10,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.sendMessageToSocket = sendMessageToSocket;
-exports.msgCmdCheck = msgCmdCheck;
 const databaseServices_1 = require("../databaseServices");
-const chatServices_1 = require("./chatServices");
+const msgCmdServices_1 = require("./msgCmdServices");
 const databaseService_1 = require("./databaseService");
 function sendMessageToSocket(io, targetSocket, userId, to, msg) {
     return __awaiter(this, void 0, void 0, function* () {
         if (targetSocket) {
-            const cmdResult = yield msgCmdCheck(msg, userId, to);
+            const cmdResult = yield (0, msgCmdServices_1.msgCmdCheck)(msg, userId, to);
             if (cmdResult.error) {
+                console.error("there is an error");
                 console.log(cmdResult.error);
             }
             if (cmdResult.replyMessage === "It is not a command") {
@@ -40,23 +40,6 @@ function sendMessageToSocket(io, targetSocket, userId, to, msg) {
         catch (err) {
             console.error("Failed to insert message:", err);
             throw err;
-        }
-    });
-}
-function msgCmdCheck(msg, sender_id, receiver_id) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (msg.startsWith('/block')) {
-            console.error("BLOCK TRIGERERERED");
-            const result = yield (0, chatServices_1.blockUser)(sender_id, receiver_id);
-            return result;
-        }
-        else if (msg.startsWith('/pardon')) {
-            console.error("PARDON TRIGERERERED");
-            const result = yield (0, chatServices_1.unblockUser)(sender_id, receiver_id);
-            return result;
-        }
-        else {
-            return ({ error: null, replyMessage: "It is not a command" });
         }
     });
 }

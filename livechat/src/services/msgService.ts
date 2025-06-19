@@ -1,7 +1,7 @@
 import { Server } from "socket.io";
 import { runDbAsync } from "../databaseServices";
 import { CommandResult } from "../interfaces/types"
-import { blockUser, unblockUser } from "./chatServices"
+import { blockUser, msgCmdCheck, unblockUser } from "./msgCmdServices"
 import { isBlocked } from "./databaseService";
 
 
@@ -12,6 +12,7 @@ export async function sendMessageToSocket(io: Server, targetSocket: any, userId:
         const cmdResult: CommandResult = await msgCmdCheck(msg,userId,to)
         if (cmdResult.error)
         {
+            console.error("there is an error");
             console.log(cmdResult.error);
         }
         if (cmdResult.replyMessage === "It is not a command")
@@ -34,25 +35,5 @@ export async function sendMessageToSocket(io: Server, targetSocket: any, userId:
         }   catch (err) {
         console.error("Failed to insert message:", err);
         throw err
-    }
-}
-
-export async function msgCmdCheck(msg: string, sender_id: string, receiver_id: string): Promise<CommandResult>
-{
-    if (msg.startsWith('/block'))
-    {
-        console.error("BLOCK TRIGERERERED")
-        const result: CommandResult = await blockUser(sender_id, receiver_id)
-        return result;
-    }
-    else if (msg.startsWith('/pardon'))
-    {
-        console.error("PARDON TRIGERERERED")
-        const result: CommandResult = await unblockUser(sender_id, receiver_id)
-        return result;
-    }
-    else
-    {
-        return ({error:null,replyMessage: "It is not a command"})
     }
 }

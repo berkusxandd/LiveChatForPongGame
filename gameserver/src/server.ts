@@ -7,7 +7,7 @@ import { keys, rightPaddle} from './serversidegame/state.js';
 import { initSocket, io } from './initSocket.js';
 import fastifyCors from '@fastify/cors';
 
-const PORT = 3000;
+const PORT = 3001;
 
 export const rooms = new Map()
 

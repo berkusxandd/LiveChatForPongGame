@@ -17,7 +17,6 @@ const static_1 = __importDefault(require("@fastify/static"));
 const path_1 = __importDefault(require("path"));
 const routes_1 = require("./routes");
 const sockets_1 = require("./sockets");
-const sequelize_init_1 = require("./sequelize_init");
 function buildServer() {
     return __awaiter(this, void 0, void 0, function* () {
         const fastify = (0, fastify_1.default)({ logger: true });
@@ -26,8 +25,6 @@ function buildServer() {
             prefix: '/'
         });
         try {
-            sequelize_init_1.sequelize.authenticate();
-            sequelize_init_1.sequelize.sync();
             yield fastify.register(routes_1.registerRoutes, { prefix: '/api/v1' });
             yield fastify.ready();
             (0, sockets_1.initSockets)(fastify);

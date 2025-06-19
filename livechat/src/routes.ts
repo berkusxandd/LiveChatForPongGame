@@ -2,7 +2,7 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { BlockUserBody, blockUserSchema } from "./schemas/blockUser.schemas";
 import { GetMessagesBody, getMessagesSchema } from "./schemas/createMessage.schemas";
 import { findAllDbAsync, getDbAsync, runDbAsync } from "./databaseServices";
-import { blockUser } from "./services/chatServices";
+import { blockUser } from "./services/msgCmdServices";
 import { CommandResult } from "./interfaces/types";
 //import { authorize } from "./middleware/auth";
 

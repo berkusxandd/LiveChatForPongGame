@@ -26,10 +26,10 @@ fastify.post('/join-lobby',  {
   },
   async (request: FastifyRequest<{ Body: JoinLobbyBody }>, reply: FastifyReply) => 
   {
-    const { lobbyId, userId } = request.body as { lobbyId: number; userId: number;}
+    const { lobby_id, user_id } = request.body as { lobby_id: number; user_id: number;}
     try {
-      await joinLobby(userId, lobbyId)
-      reply.send({message: "User succesfully joined to lobby",userId,lobbyId})
+      await joinLobby(user_id, lobby_id)
+      reply.send({message: "User succesfully joined to lobby",user_id,lobby_id})
     } catch (error: any) {
       reply.code(error.statusCode || 500).send({message: error.message})
     }
@@ -37,8 +37,8 @@ fastify.post('/join-lobby',  {
 
 fastify.get('/get-lobby/:lobbyId', async (request: any, reply: any) => 
 {
-  const {lobbyId} = request.params as {lobbyId: string}
-  const lobbyIdInt = parseInt(lobbyId, 10)
+  const {lobby_id} = request.params as {lobby_id: string}
+  const lobbyIdInt = parseInt(lobby_id, 10)
   try {
     const lobbyInfos = await getLobbies(lobbyIdInt)
     reply.send(lobbyInfos)

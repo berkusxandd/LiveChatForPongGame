@@ -1,15 +1,15 @@
 export const joinLobbySchema = {
   body: {
     type: 'object',
-    required: ['lobbyId', 'userId'],
+    required: ['lobby_id', 'user_id'],
     properties: {
-      lobbyId: { type: 'integer' },
-      userId: { type: 'integer' },
+      lobby_id: { type: 'integer' },
+      user_id: { type: 'integer' },
     },
   },
 };
 
 export interface JoinLobbyBody {
-  lobbyId: number;
-  userId: number;
+  lobby_id: number;
+  user_id: number;
 }

@@ -2,8 +2,9 @@ import { Server } from "socket.io"
 import { FastifyInstance } from "fastify"
 import { isBlocked } from "./services/databaseService"
 import { runDbAsync } from "./databaseServices"
-import { msgCmdCheck, sendMessageToSocket } from "./services/msgService"
+import { sendMessageToSocket } from "./services/msgService"
 import { CommandResult } from "./interfaces/types"
+import { msgCmdCheck } from "./services/msgCmdServices"
 
 const onlineUserSockets = new Map<string, string>
 

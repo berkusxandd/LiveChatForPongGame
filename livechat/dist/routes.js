@@ -12,7 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.registerRoutes = registerRoutes;
 const blockUser_schemas_1 = require("./schemas/blockUser.schemas");
 const databaseServices_1 = require("./databaseServices");
-const chatServices_1 = require("./services/chatServices");
+const msgCmdServices_1 = require("./services/msgCmdServices");
 //import { authorize } from "./middleware/auth";
 function registerRoutes(fastify) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -36,7 +36,7 @@ function registerRoutes(fastify) {
         fastify.post("/blockuser", { schema: blockUser_schemas_1.blockUserSchema }, (req, reply) => __awaiter(this, void 0, void 0, function* () {
             const { user, blocked_user } = req.body;
             const blocker_user = user;
-            const result = yield (0, chatServices_1.blockUser)(blocker_user, blocked_user);
+            const result = yield (0, msgCmdServices_1.blockUser)(blocker_user, blocked_user);
             if (result.error) {
                 reply.send({ message: result.error });
             }

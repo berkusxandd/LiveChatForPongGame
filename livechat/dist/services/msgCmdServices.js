@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.blockUser = blockUser;
 exports.unblockUser = unblockUser;
+exports.msgCmdCheck = msgCmdCheck;
 const databaseServices_1 = require("../databaseServices");
 function blockUser(blocker_user, blocked_user) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -45,6 +46,23 @@ function unblockUser(blocker_user, blocked_user) {
         }
         else {
             return ({ error: null, replyMessage: "User is not blocked" });
+        }
+    });
+}
+function msgCmdCheck(msg, sender_id, receiver_id) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (msg.startsWith('/block')) {
+            console.error("BLOCK TRIGERERERED");
+            const result = yield blockUser(sender_id, receiver_id);
+            return result;
+        }
+        else if (msg.startsWith('/pardon')) {
+            const result = yield unblockUser(sender_id, receiver_id);
+            console.error("PARDON TRIGERERERED");
+            return result;
+        }
+        else {
+            return ({ error: null, replyMessage: "It is not a command" });
         }
     });
 }

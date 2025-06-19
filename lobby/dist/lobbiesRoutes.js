@@ -29,18 +29,18 @@ const lobbiesRoutes = (fastify) => __awaiter(void 0, void 0, void 0, function* (
     fastify.post('/join-lobby', {
         schema: joinLobby_schemas_1.joinLobbySchema,
     }, (request, reply) => __awaiter(void 0, void 0, void 0, function* () {
-        const { lobbyId, userId } = request.body;
+        const { lobby_id, user_id } = request.body;
         try {
-            yield (0, lobbyService_1.joinLobby)(userId, lobbyId);
-            reply.send({ message: "User succesfully joined to lobby", userId, lobbyId });
+            yield (0, lobbyService_1.joinLobby)(user_id, lobby_id);
+            reply.send({ message: "User succesfully joined to lobby", user_id, lobby_id });
         }
         catch (error) {
             reply.code(error.statusCode || 500).send({ message: error.message });
         }
     }));
     fastify.get('/get-lobby/:lobbyId', (request, reply) => __awaiter(void 0, void 0, void 0, function* () {
-        const { lobbyId } = request.params;
-        const lobbyIdInt = parseInt(lobbyId, 10);
+        const { lobby_id } = request.params;
+        const lobbyIdInt = parseInt(lobby_id, 10);
         try {
             const lobbyInfos = yield (0, lobbyService_1.getLobbies)(lobbyIdInt);
             reply.send(lobbyInfos);

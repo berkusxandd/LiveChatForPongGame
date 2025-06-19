@@ -1,11 +1,13 @@
 import sqlite3 from 'sqlite3';
+import path from 'path';
 
 //TO-DO delete
 sqlite3.verbose();
 
 export type Database = sqlite3.Database;
 
-export const db = new sqlite3.Database('../database/chat.sqlite.db', (err) => {
+const dbPath = path.resolve(__dirname, '../database/livechat.db.sqlite');
+export const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {
       console.error('Error opening database:', err.message);
     } else {

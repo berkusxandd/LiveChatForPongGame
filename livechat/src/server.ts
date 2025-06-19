@@ -3,7 +3,6 @@ import fastifyStatic from "@fastify/static"
 import path from "path"
 import { registerRoutes } from "./routes"
 import { initSockets } from "./sockets"
-import { sequelize } from "./sequelize_init"
 import { db } from "./initDatabase"
 
 async function buildServer() {
@@ -15,9 +14,7 @@ async function buildServer() {
     })
 
     try {
-        sequelize.authenticate()
-        sequelize.sync()
-        await fastify.register(registerRoutes, {prefix: '/api/v1'})
+        await fastify.register(registerRoutes, {prefix: '/api'})
         await fastify.ready()
         initSockets(fastify)
         await fastify.listen({

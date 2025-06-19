@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chat Panel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 h-screen relative">
+
+  <button id="chatToggle" class="fixed bottom-6 right-6 w-14 h-14 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 z-50">
+    💬
+  </button>
+
+  <div id="chatPanel" class="fixed top-0 right-0 w-80 h-full bg-white shadow-lg transform translate-x-full transition-transform duration-300 z-40 flex flex-col">
+    <div class="p-4 border-b font-bold text-lg">Friends</div>
+    <ul id="friendList" class="flex-1 overflow-y-auto">
+      <!-- Friends dynamically inserted -->
+    </ul>
+    <div id="chatWindow" class="hidden flex-1 flex-col p-4 border-t">
+      <div id="chatHeader" class="font-bold mb-2"></div>
+      <div id="chatMessages" class="flex-1 overflow-y-auto border p-2 mb-2 h-40 bg-gray-100 rounded"></div>
+      <div class="flex">
+        <input id="chatInput" type="text" placeholder="Type a message..." class="flex-1 border px-2 py-1 rounded-l" />
+        <button id="sendBtn" class="bg-blue-600 text-white px-4 rounded-r">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const chatToggle = document.getElementById('chatToggle');
+    const chatPanel = document.getElementById('chatPanel');
+    const friendList = document.getElementById('friendList');
+    const chatWindow = document.getElementById('chatWindow');
+    const chatHeader = document.getElementById('chatHeader');
+    const chatMessages = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendBtn');
+
+    const friends = ['Alice', 'Bob', 'Charlie'];
+
+    let currentFriend = null;
+
+    chatToggle.addEventListener('click', () => {
+      chatPanel.classList.toggle('translate-x-full');
+    });
+
+    friends.forEach(name => {
+      const li = document.createElement('li');
+      li.textContent = name;
+      li.className = 'cursor-pointer px-4 py-2 hover:bg-gray-200 border-b';
+      li.addEventListener('click', () => openChat(name));
+      friendList.appendChild(li);
+    });
+
+    function openChat(friendName) {
+      currentFriend = friendName;
+      chatHeader.textContent = `Chat with ${friendName}`;
+      chatMessages.innerHTML = '';
+      chatWindow.classList.remove('hidden');
+    }
+
+    sendBtn.addEventListener('click', () => {
+      const msg = chatInput.value.trim();
+      if (msg === '') return;
+      const div = document.createElement('div');
+      div.className = 'mb-1 text-right';
+      div.innerHTML = `<span class="inline-block bg-blue-500 text-white px-2 py-1 rounded">${msg}</span>`;
+      chatMessages.appendChild(div);
+      chatInput.value = '';
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    });
+  </script>
+
+</body>
+</html>

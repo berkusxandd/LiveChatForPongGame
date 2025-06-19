@@ -8,25 +8,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getLobbies = getLobbies;
 exports.createLobby = createLobby;
 exports.joinLobby = joinLobby;
-const lobby_models_1 = __importDefault(require("./models/lobby.models"));
-const user_lobbies_models_1 = __importDefault(require("./models/user_lobbies.models"));
+const databaseServices_1 = require("./databaseServices");
 function getLobbies(lobby_id) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const lobby = yield lobby_models_1.default.findByPk(lobby_id);
+            const lobby = yield (0, databaseServices_1.findAllDbAsync)(`SELECT * FROM lobbies WHERE (id = ?)`, [lobby_id]);
             if (!lobby) {
                 throw { statusCode: 404, message: "Lobby is not found" };
             }
-            const usersInLobby = yield user_lobbies_models_1.default.findAll({
-                where: { lobby_id }
-            });
+            const usersInLobby = yield (0, databaseServices_1.findAllDbAsync)(`SELECT * FROM user_lobbies WHERE (lobby_id = ?)`, [lobby_id]);
             return { lobby, users: usersInLobby };
         }
         catch (error) {
@@ -34,35 +28,40 @@ function getLobbies(lobby_id) {
         }
     });
 }
+function getUsersLobbies(user_id) {
+    return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
+        try {
+            const row = yield (0, databaseServices_1.getDbAsync)(`SELECT * FROM user_lobbies WHERE (user_id = ?)`, [user_id]);
+            resolve(row);
+        }
+        catch (error) {
+            reject(error);
+        }
+    }));
+}
 function createLobby(name, capacity, creator_id) {
     return __awaiter(this, void 0, void 0, function* () {
+        const userlobby = yield getUsersLobbies(creator_id);
+        if (userlobby) {
+            throw { statusCode: 500, message: "Database error creating lobby or user_lobby, user is already in another lobby" };
+        }
         try {
-            const lobby = yield lobby_models_1.default.create({
-                name,
-                capacity,
-                creator_id,
-            });
-            yield user_lobbies_models_1.default.create({
-                user_id: creator_id,
-                lobby_id: lobby.id,
-            });
+            const lobbyID = yield (0, databaseServices_1.runDbAsync)('INSERT INTO lobbies (name, capacity, creator_id) VALUES (?,?,?)', [name, capacity, creator_id]);
+            yield (0, databaseServices_1.runDbAsync)(`INSERT INTO user_lobbies (user_id, lobby_id) VALUES (?,?)`, [creator_id, lobbyID]);
         }
         catch (error) {
             throw { statusCode: 500, message: "Database error creating lobby or user_lobby", details: error };
         }
     });
 }
-function joinLobby(userId, lobbyId) {
+function joinLobby(user_id, lobby_id) {
     return __awaiter(this, void 0, void 0, function* () {
+        const userlobby = yield getUsersLobbies(user_id);
+        if (userlobby) {
+            throw { statusCode: 500, message: "Database error creating lobby or user_lobby, user is already in another lobby" };
+        }
         try {
-            const existing = yield user_lobbies_models_1.default.findOne({ where: { user_id: userId } });
-            if (existing) {
-                throw { statusCode: 400, message: "User is already in another lobby" };
-            }
-            yield user_lobbies_models_1.default.create({
-                user_id: userId,
-                lobby_id: lobbyId,
-            });
+            yield (0, databaseServices_1.runDbAsync)(`INSERT INTO user_lobbies (user_id,lobby_id) VALUES (?,?)`, [user_id, lobby_id]);
         }
         catch (error) {
             if (error.statusCode && error.message) {

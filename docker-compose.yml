@@ -5,11 +5,42 @@ services:
     build: ./livechat
     ports:
       - "3000:3000"
+    volumes:
+    - ./livechat/database:/app/database
     working_dir: /app
     restart: unless-stopped
-  tournamentapi:
-    build: ./lobby
+    networks:
+      - net
+  gameserver:
+    build: ./gameserver
     ports:
     - "3001:3001"
     working_dir: /app
     restart: unless-stopped
+    networks:
+      - net
+  lobby:
+    build: ./lobby
+    ports: 
+      - "3002:3002"
+    volumes:
+    - ./lobby/database:/app/database
+    working_dir: /app
+    restart: unless-stopped
+    networks:
+      - net
+  nginx:
+    build: ./nginx
+    ports:
+      - "8080:80"
+    depends_on:
+      - livechat
+    restart: unless-stopped
+    networks:
+      - net
+  
+networks:
+  net:
+    driver: bridge
+
+

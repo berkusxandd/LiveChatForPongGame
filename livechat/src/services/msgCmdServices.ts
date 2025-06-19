@@ -29,11 +29,32 @@ export async function unblockUser(blocker_user: string, blocked_user: string): P
             console.log("user is succesfully UNBLOCKED")
             return ({error:null, replyMessage: "User is succesfully unblocked."})
         } catch (error) {
+            console.error("USER COULDNT UNBLOCKED")
             return ({error: error as Error, replyMessage: "Error occured while deleting blocked_users"})
         }
     }
     else
     {
         return ({error:null, replyMessage: "User is not blocked"})
+    }
+}
+
+export async function msgCmdCheck(msg: string, sender_id: string, receiver_id: string): Promise<CommandResult>
+{
+    if (msg.startsWith('/block'))
+    {
+        console.error("BLOCK TRIGERERERED")
+        const result: CommandResult = await blockUser(sender_id, receiver_id)
+        return result;
+    }
+    else if (msg.startsWith('/pardon'))
+    {
+        const result: CommandResult = await unblockUser(sender_id, receiver_id)
+        console.error("PARDON TRIGERERERED")
+        return result;
+    }
+    else
+    {
+        return ({error:null,replyMessage: "It is not a command"})
     }
 }
