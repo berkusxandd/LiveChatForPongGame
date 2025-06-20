@@ -60,3 +60,5 @@ export async function joinLobby(user_id: number, lobby_id: number): Promise<void
     throw { statusCode: 500, message: "Database error while joining lobby", details: error };
   }
 }
+
+

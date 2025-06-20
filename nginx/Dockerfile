@@ -33,7 +33,7 @@ RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
 
 # Copy nginx configuration and wait script
 COPY conf/nginx.conf /etc/nginx/nginx.conf
-COPY wait-for-service.sh /wait-for-service.sh
+COPY ./wait-for-service.sh /wait-for-service.sh
 RUN chmod +x /wait-for-service.sh
 
 EXPOSE 80
