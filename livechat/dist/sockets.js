@@ -9,27 +9,27 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.onlineUserSockets = void 0;
 exports.initSockets = initSockets;
 const socket_io_1 = require("socket.io");
 const msgService_1 = require("./services/msgService");
-const onlineUserSockets = new Map;
+exports.onlineUserSockets = new Map;
 function initSockets(fastify) {
     return __awaiter(this, void 0, void 0, function* () {
         const io = new socket_io_1.Server(fastify.server);
         io.on('connection', (socket) => {
             const userId = socket.handshake.auth.userId;
-            onlineUserSockets.set(userId, socket.id);
-            console.log(userId + ' (' + onlineUserSockets.get(userId) + ') ' + 'connected');
+            exports.onlineUserSockets.set(userId, socket);
+            console.log(userId + ' (' + exports.onlineUserSockets.get(userId) + ') ' + 'connected');
             socket.join(userId);
             socket.on('disconnect', () => {
-                console.log(userId + ' (' + onlineUserSockets.get(userId) + ') ' + 'disconnected');
-                onlineUserSockets.delete(userId);
+                console.log(userId + ' (' + exports.onlineUserSockets.get(userId) + ') ' + 'disconnected');
+                exports.onlineUserSockets.delete(userId);
             });
             socket.on('emit-chat-message', (_a) => __awaiter(this, [_a], void 0, function* ({ to, msg }) {
                 console.log(userId + " " + to + " " + msg);
-                const targetSocket = onlineUserSockets.get(to);
                 try {
-                    yield (0, msgService_1.sendMessageToSocket)(io, targetSocket, userId, to, msg);
+                    yield (0, msgService_1.sendMessageToSocket)(io, userId, to, msg);
                 }
                 catch (error) {
                     console.log(error);

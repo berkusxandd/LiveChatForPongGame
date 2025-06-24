@@ -1,76 +1,56 @@
-import { gameStates, keys, match } from "./state.js";
+import { initCanvas, match, setAnimationId, gameStates, keys, ball, leftPaddle, rightPaddle } from "./state.js";
 import { updateGame } from "./update.js";
-import { renderGame, renderPauseMenu, renderEndMenu } from "./render.js";
-import { gameStart } from "./gameStart.js";
-import socket from "./socket.js";
+import { renderGame } from "./render.js";
+// import { navigateTo } from "../main.js";
 
-function togglePause() {
-    gameStates.isRunning = !gameStates.isRunning;
-    gameStates.isRunning ? requestAnimationFrame(gameLoop) : renderPauseMenu();
-}
-
-function restartGame() {
-    window.location.reload();
-}
-
-function quitGame() {
-    window.location.reload();
-}
-// if (gameStates.isRemote) {
-//     window.addEventListener("keydown", (event) => {
-//         fetch(`http://localhost:3000/update/`, {
-//             method: "POST",
-//             headers: { "Content-Type": "application/json" },
-//             body: JSON.stringify({ action: "keydown", key: event, player:"left" })
-//         });
-//     });
-
-//     window.addEventListener("keyup", (event) => {
-//         fetch(`http://localhost:3000/update/`, {
-//             method: "POST",
-//             headers: { "Content-Type": "application/json" },
-//             body: JSON.stringify({ action: "keyup", key: event, player: "left" })
-//         });
-//     });
-// } else {
-
-//bince changed this
 window.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") quitGame();
-    if (!gameStates.isEnd && event.key === "p") togglePause();
-    if (event.key === "r") restartGame();
+    if (event.key === "ArrowUp" || event.key === "ArrowDown")
+        event.preventDefault();
+    // if (event.key === "Escape") navigateTo("/");
+    if (!gameStates.isIntro && !gameStates.isEnd && event.key === "p") match?.pause();
+    if (!gameStates.isIntro && event.key === "r") match?.restart();
+    if (gameStates.isIntro && event.key === "Enter") {
+        gameStates.isIntro = false;
+        setAnimationId(requestAnimationFrame(gameLoop));
+    }
     if (gameStates.isRunning) {
-        if (event.key === "w"){
-         socket.emit("key-up", true)   
-        }
-        if (event.key === "s"){
-         socket.emit("key-down", true)   
-        }
+        if (event.key === "w") keys.w = true;
+        if (event.key === "s") keys.s = true;
+        if (match?.gameMode && event.key === "ArrowUp") keys.Up = true;
+        if (match?.gameMode && event.key === "ArrowDown") keys.Down = true;
     }
 });
-//bince changed this
+
 window.addEventListener("keyup", (event) => {
     if (gameStates.isRunning) {
-        if (event.key === "w"){
-         socket.emit("key-up", false)   
-        }
-        if (event.key === "s"){
-         socket.emit("key-down", false)   
-        }
+        if (event.key === "w") keys.w = false;
+        if (event.key === "s") keys.s = false;
+        if (match?.gameMode && event.key === "ArrowUp") keys.Up = false;
+        if (match?.gameMode && event.key === "ArrowDown") keys.Down = false;
     }
 });
 
-
-function gameLoop() {
-    if (gameStates.isEnd) {
-        gameStates.isRunning = false;
-        renderEndMenu();
-        match.setWinner();
+export function gameLoop() {
+    if (!gameStates.isRunning || gameStates.isEnd) {
+        setAnimationId(null);
+        return;
     }
-    if (!gameStates.isRunning) return;
+    updateGame();
     renderGame();
-    requestAnimationFrame(gameLoop);
+    setAnimationId(requestAnimationFrame(gameLoop));
 }
 
-await gameStart()
-gameLoop()
+export function initGame() {
+    initCanvas();
+    gameStates.isIntro = true;
+    gameStates.isRunning = true;
+    gameStates.isEnd = false;
+    gameStates.isFirstUpdate = true;
+    keys.w = false;
+    keys.s = false;
+    keys.Up = false;
+    keys.Down = false;
+    ball.init();
+    leftPaddle.init(true);
+    rightPaddle.init(false);
+}

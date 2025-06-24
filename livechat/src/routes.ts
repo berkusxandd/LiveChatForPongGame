@@ -4,7 +4,6 @@ import { GetMessagesBody, getMessagesSchema } from "./schemas/createMessage.sche
 import { findAllDbAsync, getDbAsync, runDbAsync } from "./databaseServices";
 import { blockUser } from "./services/msgCmdServices";
 import { CommandResult } from "./interfaces/types";
-//import { authorize } from "./middleware/auth";
 
 export async function registerRoutes(fastify: FastifyInstance)
 {

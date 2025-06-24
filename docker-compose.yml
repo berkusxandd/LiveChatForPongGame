@@ -18,84 +18,84 @@ services:
     - "3001:3001"
     working_dir: /app
     restart: unless-stopped
-  lobby:
-    container_name: lobby-service
-    build: ./lobby
-    ports: 
-      - "3002:3002"
-    volumes:
-    - ./lobby/database:/app/database
-    working_dir: /app
-    restart: unless-stopped
+  # lobby:
+  #   container_name: lobby-service
+  #   build: ./lobby
+  #   ports: 
+  #     - "3002:3002"
+  #   volumes:
+  #   - ./lobby/database:/app/database
+  #   working_dir: /app
+  #   restart: unless-stopped
 
-  auth-service:
-    build:
-      context: ./backend/auth-service
-    container_name: auth-service
-    ports:
-      - "5500:5500"
-    volumes:
-      - auth-db:/app/database
+  # auth-service:
+  #   build:
+  #     context: ./backend/auth-service
+  #   container_name: auth-service
+  #   ports:
+  #     - "5500:5500"
+  #   volumes:
+  #     - auth-db:/app/database
 
-  user-service:
-    build:
-      context: ./backend/user-service
-    container_name: user-service
-    ports:
-      - "5501:5501"
-    volumes:
-      - user-db:/app/database
-      - /app/node_modules
-    depends_on:
-      - auth-service
+  # user-service:
+  #   build:
+  #     context: ./backend/user-service
+  #   container_name: user-service
+  #   ports:
+  #     - "5501:5501"
+  #   volumes:
+  #     - user-db:/app/database
+  #     - /app/node_modules
+  #   depends_on:
+  #     - auth-service
   
-  tournament-service:
-    build:
-      context: ./backend/tournament-service
-    container_name: tournament-service
-    ports:
-      - "5600:5600"
-    volumes:
-      - tournament-db:/app/database
-    depends_on:
-      - auth-service
-      - user-service
+  # tournament-service:
+  #   build:
+  #     context: ./backend/tournament-service
+  #   container_name: tournament-service
+  #   ports:
+  #     - "5600:5600"
+  #   volumes:
+  #     - tournament-db:/app/database
+  #   depends_on:
+  #     - auth-service
+  #     - user-service
 
-  frontend-builder:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: frontend-builder
-    volumes:
-      - frontend-build:/app/dist
-      - ./frontend/src:/app/src
+  # frontend-builder:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   container_name: frontend-builder
+  #   volumes:
+  #     - frontend-build:/app/dist
+  #     - ./frontend/src:/app/src
 
-  nginx:
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile
-    container_name: nginx
-    ports:
-      - "8443:443"
-    depends_on:
-      - auth-service
-      - user-service
-      - tournament-service
-      - frontend-builder
-      - lobby
-      - gameserver
-    command: ["/wait-for-service.sh", "auth-service:5500", "user-service:5501", "tournament-service:5600"]
-    restart: always
+  # nginx:
+  #   build:
+  #     context: ./nginx
+  #     dockerfile: Dockerfile
+  #   container_name: nginx
+  #   ports:
+  #     - "8443:443"
+  #   depends_on:
+  #     - auth-service
+  #     - user-service
+  #     - tournament-service
+  #     - frontend-builder
+  #     - lobby
+  #     - gameserver
+  #   command: ["/wait-for-service.sh", "auth-service:5500", "user-service:5501", "tournament-service:5600"]
+  #   restart: always
   
 networks:
   net:
     driver: bridge
 
 
-volumes:
-  auth-db:
-  user-db:
-  tournament-db:
-  frontend-build:
+# volumes:
+#   auth-db:
+#   user-db:
+#   tournament-db:
+#   frontend-build:
 
 

@@ -2,7 +2,7 @@ import Fastify from 'fastify';
 import path from 'path';
 import fastifyStatic from '@fastify/static';
 import {Server} from "socket.io"
-import newPlayerJoined from './roomService.js';
+import newPlayerJoined, { createRoom } from './roomService.js';
 import { keys, rightPaddle} from './serversidegame/state.js';
 import { initSocket, io } from './initSocket.js';
 import fastifyCors from '@fastify/cors';
@@ -21,6 +21,11 @@ async function buildServer()
   fastify.get('/api/ping', async (req, reply) => {
   return { pong: true };
   });
+
+  fastify.get('/create-room', (req, reply) => {
+    const roomName = createRoom();
+    reply.send({"roomName": roomName})
+  })
 
   fastify.listen({ port: PORT }, (err, address) => {
 

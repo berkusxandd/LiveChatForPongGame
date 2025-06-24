@@ -40,7 +40,7 @@
         const messages = document.getElementById("messages");
 
         //For the mesage history
-        fetch(`http://localhost:3000/api/v1/messages/${username}/${recipient}`)
+        fetch(`http://localhost:3000/api/messages/${username}/${recipient}`)
         .then(res => res.json())
         .then(data => {
         data.forEach((msg) => {
@@ -71,12 +71,40 @@
         });
 
         socket.on("get-chat-message", ({ from, msg }) => {
+          console.log("I got a message")
           if (from === username || from != recipient) return;
           const item = document.createElement("li");
           item.textContent = `${from}: ${msg}`;
           messages.appendChild(item);
           window.scrollTo(0, document.body.scrollHeight);
         });
+
+        socket.on("emit-invite-message", ({ from, roomName }) => {
+  const item = document.createElement("li");
+  item.style.backgroundColor = "red"; 
+  item.textContent = `${from} invited you to join room "${roomName}". `;
+
+  const acceptButton = document.createElement("button");
+  acceptButton.textContent = "Accept";
+  acceptButton.addEventListener("click", () => {
+    // You can emit an accept event or navigate
+    console.log(`${username} accepted invitation to ${roomName}`);
+    // e.g., socket.emit("accept-invite", { from, roomName });
+  });
+  
+  const rejectButton = document.createElement("button");
+  rejectButton.textContent = "Reject";
+  rejectButton.addEventListener("click", () => {
+    console.log(`${username} rejected invitation from ${from}`);
+    item.remove();
+    // e.g., socket.emit("reject-invite", { from, roomName });
+  });
+
+  item.appendChild(acceptButton);
+  item.appendChild(rejectButton);
+  messages.appendChild(item);
+  window.scrollTo(0, document.body.scrollHeight);
+});
       });
     </script>
   </body>

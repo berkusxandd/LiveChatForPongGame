@@ -12,6 +12,9 @@ export function initSocket(fastify) {
     });
     io.on("connection", (socket) => {
         console.log("New client connected");
+        socket.on("join-room", (val) => {
+            newPlayerJoined(socket, io, val);
+        });
         socket.on("key-up", (val) => {
             console.log("UP");
             const room = rooms.get("first");
@@ -40,7 +43,6 @@ export function initSocket(fastify) {
                 }
             }
         });
-        newPlayerJoined(socket, io, "first");
     });
 }
 export { io };

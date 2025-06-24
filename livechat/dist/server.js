@@ -25,7 +25,7 @@ function buildServer() {
             prefix: '/'
         });
         try {
-            yield fastify.register(routes_1.registerRoutes, { prefix: '/api/v1' });
+            yield fastify.register(routes_1.registerRoutes, { prefix: '/api' });
             yield fastify.ready();
             (0, sockets_1.initSockets)(fastify);
             yield fastify.listen({

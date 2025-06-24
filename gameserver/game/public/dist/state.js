@@ -1,39 +1,37 @@
-import { MIN_SPEED, PADDLE_SPEED, MAX_SCORE } from "./config.js";
+import { CANVAS_HEIGHT, CANVAS_WIDTH } from "./config.js";
 import { Ball } from "./ball.js";
 import { Paddle } from "./paddle.js";
-import { Match } from "./match.js";
-export let canvas = document.getElementById("gameCanvas");
-export let ctx = canvas.getContext("2d");
+export let canvas;
+export let ctx;
+export function initCanvas() {
+    const el = document.getElementById("gameCanvas");
+    if (!el)
+        throw new Error("Canvas not found");
+    canvas = el;
+    ctx = el.getContext("2d");
+    canvas.width = CANVAS_WIDTH;
+    canvas.height = CANVAS_HEIGHT;
+}
+export let match = null;
+export function setMatch(currentMatch) {
+    match = currentMatch;
+}
+export let animationId = null;
+export function setAnimationId(id) {
+    animationId = id;
+}
 export let gameStates = {
-    isSinglePlayer: false,
-    isFirstUpdate: true,
-    isRemote: false,
-    isRunning: true,
+    isIntro: false,
+    isRunning: false,
     isEnd: false,
-    playerIndex: false //bince added this
+    isFirstUpdate: true
 };
-export const match = new Match("player1", "player2");
 export let keys = {
     w: false,
     s: false,
     Up: false,
     Down: false
 };
-const dxStart = Math.floor(Math.random() * 2) ? -1 : 1;
-export const ball = new Ball(canvas.width / 2, canvas.height / 2, 5, dxStart, 0, MIN_SPEED, "white");
-const paddleWidth = canvas.width * 0.01;
-const paddleHeight = canvas.height * 0.15;
-export const leftPaddle = new Paddle(5, canvas.height / 2 - paddleHeight / 2, paddleWidth, paddleHeight, PADDLE_SPEED, "white");
-export const rightPaddle = new Paddle(canvas.width - paddleWidth - 5, canvas.height / 2 - paddleHeight / 2, paddleWidth, paddleHeight, PADDLE_SPEED, "white");
-export function scoreGoal(player) {
-    match.score[player]++;
-    ball.x = canvas.width / 2;
-    ball.y = canvas.height / 2;
-    ball.dx = player ? -1 : 1;
-    ball.dy = 0;
-    ball.speed = MIN_SPEED;
-    if (gameStates.isSinglePlayer)
-        gameStates.isFirstUpdate = true;
-    if (match.score[0] === MAX_SCORE || match.score[1] === MAX_SCORE)
-        gameStates.isEnd = true;
-}
+export const ball = new Ball();
+export const leftPaddle = new Paddle();
+export const rightPaddle = new Paddle();

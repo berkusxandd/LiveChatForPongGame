@@ -6,6 +6,8 @@ import { rooms } from "./server.js"
  
 let io: Server
 
+
+
 export function initSocket(fastify: FastifyInstance)
 {
     io = new Server(fastify.server, {
@@ -15,9 +17,15 @@ export function initSocket(fastify: FastifyInstance)
   }
 })
 
-    io.on("connection", (socket) => {
-        console.log("New client connected")
-        socket.on("key-up", (val) => {
+io.on("connection", (socket) => {
+    console.log("New client connected")
+    
+    socket.on("join-room", (val: string) => {
+        
+        newPlayerJoined(socket, io, val)
+    })
+
+        socket.on("key-up", (val: any) => {
         console.log("UP")
             const room = rooms.get("first")
             for (const player of room)
@@ -35,7 +43,7 @@ export function initSocket(fastify: FastifyInstance)
                 }
             }
         })
-        socket.on("key-down", (val) => {
+        socket.on("key-down", (val: any) => {
         console.log("DOWN")
             const room = rooms.get("first")
             for (const player of room)
@@ -53,7 +61,6 @@ export function initSocket(fastify: FastifyInstance)
                 }
             }
         })
-        newPlayerJoined(socket, io, "first")
     })
 }
 export {io}
